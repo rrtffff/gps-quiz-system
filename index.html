@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>卫星导航复习答题系统 | Satellite Navigation Quiz</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛰️</text></svg>">
+</head>
+<body>
+
+<!-- 浮动装饰 -->
+<div class="floating-decor">🛰️</div>
+<div class="floating-decor">⭐</div>
+<div class="floating-decor">🌍</div>
+<div class="floating-decor">📡</div>
+
+<!-- 背景音乐播放器 -->
+<div class="bgm-player" id="bgmPlayer">
+  <button class="bgm-btn" id="bgmBtn" onclick="toggleBGM()" title="背景音乐">
+    <span class="bgm-icon">🔇</span>
+  </button>
+  <div class="bgm-info" id="bgmInfo">
+    <span class="bgm-title">🎵 春日影（钢琴纯享版）</span>
+    <input type="range" class="bgm-volume" id="bgmVolume" min="0" max="100" value="30" oninput="setBGMVolume(this.value)">
+  </div>
+</div>
+<audio id="bgmAudio" loop preload="auto">
+  <source src="assets/bgm.mp3" type="audio/mpeg">
+</audio>
+
+<!-- 顶部导航 -->
+<div class="top-bar" id="topBar">
+  <div class="logo" onclick="showPage('home')">🛰️ 卫星导航复习</div>
+  <div class="nav-btns" id="navBtns">
+    <button onclick="showPage('home')">🏠</button>
+    <button onclick="showChapterList()">📚</button>
+    <button onclick="showExamMode()">📋</button>
+    <button onclick="showWrongBook()">📝</button>
+  </div>
+</div>
+
+<!-- 移动端底部导航 -->
+<div class="mobile-nav" id="mobileNav">
+  <button onclick="showPage('home')" class="mn-active">🏠<span>首页</span></button>
+  <button onclick="showChapterList()">📚<span>章节</span></button>
+  <button onclick="showExamMode()">📋<span>考纲</span></button>
+  <button onclick="showWrongBook()">📝<span>错题</span></button>
+</div>
+
+<!-- 主容器 -->
+<div class="container" id="appContainer">
+
+  <!-- ========== 首页 ========== -->
+  <div class="page active" id="page-home">
+    <div class="hero">
+      <div class="mascot">🛰️</div>
+      <h1>卫星导航课程复习</h1>
+      <p class="subtitle">201+道选择题 · 20章教材 + 补充题库<br>题目难度分级 · 智能薄弱分析 · 错题自动收录</p>
+    </div>
+
+    <div class="card" style="text-align:center;">
+      <h3 style="margin-bottom:12px;">🎯 章节练习 — 包含全部难度</h3>
+      <p style="color:var(--text-light);margin-bottom:12px;font-size:0.85rem;">
+        章节模式下每个章节包含 🌱基础 + 🌿进阶 + 🌳挑战 全部题目，逐级递进
+      </p>
+      <div class="difficulty-selector" id="homeDifficulty">
+        <div class="diff-btn selected" onclick="selectDifficulty('medium',this)" data-diff="medium">
+          <div class="diff-name">🌿 进阶</div>
+          <div class="diff-desc">考纲/刷题默认难度</div>
+        </div>
+        <div class="diff-btn" onclick="selectDifficulty('easy',this)" data-diff="easy">
+          <div class="diff-name">🌱 基础</div>
+          <div class="diff-desc">基础概念和定义</div>
+        </div>
+        <div class="diff-btn" onclick="selectDifficulty('hard',this)" data-diff="hard">
+          <div class="diff-name">🌳 挑战</div>
+          <div class="diff-desc">推导计算和分析</div>
+        </div>
+      </div>
+      <p style="font-size:0.78rem;color:var(--text-light);margin-top:8px;">
+        难度选择仅影响「大纲模式」和「快速刷题」的题目筛选 · 章节练习始终包含全部难度
+      </p>
+    </div>
+
+    <div style="text-align:center;margin:16px 0 6px;">
+      <span style="font-size:0.85rem;color:var(--text-light);">📖 背题学习区</span>
+    </div>
+    <div class="mode-grid" style="grid-template-columns:repeat(2,1fr);max-width:500px;margin:0 auto 8px;">
+      <div class="mode-card" onclick="startFlashcards()" style="background:linear-gradient(135deg,#fff,#fef5ff);">
+        <div class="icon">🃏</div>
+        <div class="title">闪卡模式</div>
+        <div class="desc">40个术语 · 间隔重复<br>翻转卡片，三级自评</div>
+      </div>
+      <div class="mode-card" onclick="startLearnMode()" style="background:linear-gradient(135deg,#fff,#f5f9ff);">
+        <div class="icon">🧠</div>
+        <div class="title">学习模式</div>
+        <div class="desc">161道简答 · 错题循环<br>对照答案，逐轮掌握</div>
+      </div>
+    </div>
+
+    <div class="mode-grid">
+      <div class="mode-card" onclick="showChapterList()">
+        <div class="icon">📚</div>
+        <div class="title">按章节练习</div>
+        <div class="desc">20个章节逐一突破<br>全部难度 · 追踪进度</div>
+      </div>
+      <div class="mode-card" onclick="showExamMode()">
+        <div class="icon">📋</div>
+        <div class="title">考试大纲出题</div>
+        <div class="desc">按考纲重点智能组卷<br>高频考点 · 自主选题</div>
+      </div>
+      <div class="mode-card" onclick="showWrongBook()">
+        <div class="icon">📝</div>
+        <div class="title">错题本复习</div>
+        <div class="desc">自动收录易错题目<br>针对性查漏补缺</div>
+      </div>
+      <div class="mode-card" onclick="suppQuiz()">
+        <div class="icon">📖</div>
+        <div class="title">补充题库</div>
+        <div class="desc">基于教材深入内容<br>覆盖接收机·信号处理·电离层等</div>
+      </div>
+      <div class="mode-card" onclick="quickQuiz()">
+        <div class="icon">⚡</div>
+        <div class="title">快速刷题</div>
+        <div class="desc">随机20道题<br>跨章节综合训练</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 章节列表 ========== -->
+  <div class="page" id="page-chapters">
+    <div class="card">
+      <h2 style="margin-bottom:8px;">📚 选择章节开始练习</h2>
+      <p style="color:var(--text-light);margin-bottom:16px;font-size:0.85rem;">
+        每个章节包含全部难度题目（🌱基础 + 🌿进阶 + 🌳挑战），按难度递增排列
+      </p>
+      <div class="chapter-grid" id="chapterGrid"></div>
+    </div>
+    <div style="text-align:center;margin-top:16px;">
+      <button class="btn btn-outline" onclick="showPage('home')">← 返回首页</button>
+    </div>
+  </div>
+
+  <!-- ========== 考试大纲 ========== -->
+  <div class="page" id="page-exam">
+    <div class="card">
+      <h2 style="margin-bottom:12px;">📋 考试大纲出题模式</h2>
+      <p style="color:var(--text-light);margin-bottom:12px;font-size:0.9rem;">
+        根据考试复习指南，按重点等级智能组卷<br>
+        当前难度：<strong id="examDiffLabel">🌿 进阶</strong> — 仅筛选该难度题目
+      </p>
+      <div class="difficulty-selector" id="examDifficulty">
+        <div class="diff-btn" onclick="selectDifficulty('easy',this)" data-diff="easy"><div class="diff-name">🌱 基础</div></div>
+        <div class="diff-btn selected" onclick="selectDifficulty('medium',this)" data-diff="medium"><div class="diff-name">🌿 进阶</div></div>
+        <div class="diff-btn" onclick="selectDifficulty('hard',this)" data-diff="hard"><div class="diff-name">🌳 挑战</div></div>
+      </div>
+      <p style="font-size:0.85rem;color:var(--text-light);margin:8px 0;">选择知识点范围（不选则全选）：</p>
+      <div class="exam-quick-select" id="examChips"></div>
+      <div style="text-align:center;margin-top:16px;">
+        <button class="btn btn-primary" onclick="startExamQuiz()">🎯 开始考试模拟</button>
+        <button class="btn btn-outline" style="margin-left:8px;" onclick="showPage('home')">← 返回</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 答题页 ========== -->
+  <div class="page" id="page-quiz">
+    <div class="quiz-header">
+      <div class="quiz-info">
+        <span id="quizChapter">📚 章节练习</span>
+        <span id="quizProgress">0/0</span>
+      </div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="quizProgressBar" style="width:0%"></div></div>
+
+    <div id="quizContent">
+      <div class="question-card">
+        <div class="question-num" id="questionNum">第 1 题</div>
+        <div class="question-text" id="questionText">题目加载中...</div>
+        <div class="options-list" id="optionsList"></div>
+        <div id="explanationArea"></div>
+      </div>
+      <div class="quiz-actions">
+        <button class="btn btn-primary" id="btnNext" onclick="nextQuestion()" disabled>下一题 →</button>
+        <button class="btn btn-outline" id="btnSubmit" onclick="submitQuiz()" style="display:none;">提交答卷 ✅</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 结果页 ========== -->
+  <div class="page" id="page-result">
+    <div class="card" id="resultContent"></div>
+    <div style="text-align:center;margin-top:16px;">
+      <button class="btn btn-primary" id="btnRetry" onclick="retryQuiz()">🔄 重新练习</button>
+      <button class="btn btn-secondary" style="margin-left:8px;" id="btnWrongOnly" onclick="retryWrongOnly()">📝 只练错题</button>
+      <button class="btn btn-outline" style="margin-left:8px;" onclick="showPage('home')">🏠 返回首页</button>
+    </div>
+  </div>
+
+  <!-- ========== 闪卡模式 ========== -->
+  <div class="page" id="page-flashcard">
+    <div class="card" style="text-align:center;">
+      <h2 style="margin-bottom:4px;">🃏 术语闪卡</h2>
+      <p style="font-size:0.82rem;color:var(--text-light);margin-bottom:12px;">考试术语解释 ~10分 | 点击翻转 · 自评复习</p>
+      <div id="flashContent"></div>
+      <div style="margin-top:12px;">
+        <button class="btn btn-outline" onclick="showPage('home')" style="font-size:0.8rem;">← 返回</button>
+        <button class="btn btn-secondary" onclick="resetFlashSR()" style="font-size:0.8rem;margin-left:6px;">🗑 重置进度</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 学习模式 ========== -->
+  <div class="page" id="page-learn">
+    <div class="card">
+      <h2 style="margin-bottom:4px;">🧠 学习模式</h2>
+      <p style="font-size:0.82rem;color:var(--text-light);margin-bottom:12px;">简答题对照 · 错题循环 · 逐轮掌握</p>
+      <div id="learnContent"></div>
+      <div style="text-align:center;margin-top:12px;">
+        <button class="btn btn-outline" onclick="showPage('home')" style="font-size:0.8rem;">← 返回首页</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 错题本 ========== -->
+  <div class="page" id="page-wrongbook">
+    <div class="card">
+      <h2 style="margin-bottom:16px;">📝 我的错题本</h2>
+      <div id="wrongBookContent"></div>
+    </div>
+    <div style="text-align:center;margin-top:16px;">
+      <button class="btn btn-outline" onclick="showPage('home')">← 返回首页</button>
+      <button class="btn btn-secondary" style="margin-left:8px;" id="btnClearWrong" onclick="clearWrongBook()">🗑 清空错题本</button>
+    </div>
+  </div>
+
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
